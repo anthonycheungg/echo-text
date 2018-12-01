@@ -1,98 +1,102 @@
 # Imports
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
+from weather import Weather, Unit
+from googletrans import Translator
+
+# Custom module
+import dictionary
 
 app = Flask(__name__)
 
-# Main function
-# triggered by a POST request by ngrok
-# when an SMS is received, Twilio will send the POST
 @app.route('/sms', methods=['POST'])
 def sms():
     """
     Use Twilio API to reply to texts
     """
     number = request.form['From']
-    message = request.form['Body']      # text from SMS
-    response = MessagingResponse()         # init a Twilio response
+    message = request.form['Body']      
+    response = MessagingResponse()     
     print("Message obtained by {}:".format(number))
     print("{}".format(message))
-    reply = formulate_reply(message)    # formulate answer to message
+    reply = formulate_reply(message)    
     print("Reply: {}".format(reply))
-    response.message('Hi\n' + reply)  # text back
+    response.message(reply)  
     return str(response)
 
 
 def formulate_reply(message):
     """
-    Identify keywords in message and relply accordingly through various APIs
+    Identify keywords in message and reply accordingly through various APIs
     """
-    message = message.lower().strip()  # reformate message
-    answer = ""
-    # identify keywords
-    if "weather" in message:     # for weather requests
-        message = remove_from(message, "weather")
-        answer = weather_APIrequest(message)
-    elif "wolfram" in message:   # for calculations
-        message = remove_from(message, "wolfram")
-        answer = wolfram_APIrequest(message)
-    elif "wiki" in message:      # for wikipedia searches
-        message = remove_from(message, "wiki")
-        answer = wiki_APIrequest(message)
-    # add more features here
+    message = message.lower().strip()  
+    answer = "" 
+   
+    if "weather:" in message:     
+        city = remove_from(message, "weather:")
+        weather = Weather(unit=Unit.CELSIUS)
+        location = weather.lookup_by_location(city)
+
+        if location:
+            forecasts_array = location.forecast
+            answer = construct_forecasts_from_weather_array(forecasts_array, city)
+        else:
+            answer = f"No weather for {city}."
+
+    elif "wiki:" in message:     
+        message = remove_from(message, "wiki:")
+        answer = wikipedia_request(message)
+
+    elif "translate:" in message:
+        message = remove_from(message, "translate:")
+        answer = google_translate(message)
+    
+    elif "define:" in message: 
+        query = remove_from(message, "define:")
+        answer = dictionary.run(query)
+
     else:
-        answer = "hello sir!"
-    # limit to 1500 characters
-    if len(answer) > 1500:
-        answer = answer[0:1500] + "..."
+        answer = """
+        Sorry, I don't understand. 
+
+        You can use these commands:
+        wiki: <article name>
+        weather: <city>
+        define: <word to define>
+        """
+    if answer:
+        if len(answer) > 1500:
+            answer = answer[0:1500] + "..."
     return answer
 
-
 def remove_from(message, keyword):
-    """
-    Strip the message from the keyword
-    """
     message = message.replace(keyword, '').strip()
     return message
 
-
-def weather_APIrequest(message):
-    """
-    Tell the weather
-    """
-    pass
-
-
-def wolfram_APIrequest(message):
-    """
-    Do math
-    """
-    # import wolframalpha
-    # import os
-    # answer = ""
-    # # get API key from filename in directory API-keys/wolfram-alpha/
-    # APIkey = os.listdir("API-keys/wolfram-alpha")[0]
-    # try:
-    #     client = wolframalpha.Client(APIkey)
-    #     res = client.query(message)
-    #     answer = next(res.results).text
-    # except:
-    #     answer = "No valid query for Wolfram|Alpha"
-    # return answer
-    pass
-
-def wiki_APIrequest(message):
-    """
-    Be intellectual ;)
-    """
+def wikipedia_request(message):
     import wikipedia
     try:
-        answer = wikipedia.summary(message)  # get summary from wikipedia
+        answer = wikipedia.summary(message) 
     except:
         # handle problems, that is degeneracy of answers
-        answer = "Request was not found using Wikipedia. Be more specific?"
+        answer = f"{message} could not be found on Wikipedia."
     return answer
 
+def construct_forecasts_from_weather_array(forecasts_array, location):
+    weather_result = f"Weather for {location} \n"
+    for i in forecasts_array:
+        if i is not None:
+            weather_result += f"Condition: {i.text} \n"
+            weather_result += f"Date: {i.date} \n"
+            weather_result += f"High: {i.high} C \n"
+            weather_result += f"Low: {i.low} C  \n"
+            weather_result += '\n'
+    return weather_result
+
+def google_translate(message): 
+    translator = Translator()
+    answer = translator.translate(str(message))
+    return answer.text
 
 if __name__ == '__main__':
     app.run()
