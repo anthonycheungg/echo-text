@@ -41,10 +41,7 @@ def formulate_reply(message):
         answer = wiki_APIrequest(message)
     # add more features here
     else:
-        answer = "\n Welcome! These are the commands you may use: "
-        +" \nWOLFRAM \"wolframalpha request\""
-        +" \nWIKI \"wikipedia request\""
-        +" \nWEATHER \"place\"\n"
+        answer = "hello sir!"
     # limit to 1500 characters
     if len(answer) > 1500:
         answer = answer[0:1500] + "..."
