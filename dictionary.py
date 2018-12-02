@@ -1,3 +1,5 @@
+import os
+
 import requests as r
 
 class API():
@@ -17,7 +19,7 @@ class API():
             return [f"Sorry, word: '{word}' was not found."]
 
 class MerriamWebster(API):
-    apikey = "410858c6-e969-4111-87e0-8c2c4a89af8c"
+    apikey = os.environ.get("DICTIONARY_API_TOKEN")
     
     def __call__(self, word):
         """

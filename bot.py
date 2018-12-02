@@ -13,7 +13,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return '<h1> Echo Text </h1> <p> This is the web server for Echo Text. </p>'
+    return '<h1> Echo Text </h1> <p> This is the web server for Echo Text. You can text it at 604 259 1114 </p>'
 
 @app.route('/sms', methods=['POST'])
 def sms():
