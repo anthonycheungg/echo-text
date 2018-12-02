@@ -3,11 +3,17 @@ from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
 from weather import Weather, Unit
 from googletrans import Translator
+import json
 
 # Custom dictionary module
 import dictionary
+import news
 
 app = Flask(__name__)
+
+@app.route('/')
+def index():
+    return '<h1> Echo Text </h1> <p> This is the web server for Echo Text. </p>'
 
 @app.route('/sms', methods=['POST'])
 def sms():
@@ -16,9 +22,12 @@ def sms():
     """
     number = request.form['From']
     message = request.form['Body']      
-    response = MessagingResponse()     
+    response = MessagingResponse()
+
     print("Message obtained by {}:".format(number))
     print("{}".format(message))
+    log_message(number, message)
+    
     reply = formulate_reply(message)    
     print("Reply: {}".format(reply))
     response.message(reply)  
@@ -54,6 +63,10 @@ def formulate_reply(message):
     elif "define:" in message: 
         query = remove_from(message, "define:")
         answer = dictionary.run(query)
+
+    elif "news:" in message:
+        query = remove_from(message, "news:")
+        answer = news.run()
 
     else:
         answer = """
@@ -96,11 +109,21 @@ def construct_forecasts_from_weather_array(forecasts_array, location):
 def google_translate(message): 
     translator = Translator()
     answer = translator.translate(str(message))
-    
+
     if answer.text: 
         return f"Translation: {answer.text}"
     else:
         return f"Translation not found for {message}"
+
+def log_message(number, message):
+    with open('responses.json', 'a') as file:
+        log = {
+            'phone_number': number,
+            'message': message
+        }
+        file.write(json.dumps(log))
+        file.close()
+        
 
 if __name__ == '__main__':
     app.run()
