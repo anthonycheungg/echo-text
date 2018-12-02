@@ -4,7 +4,7 @@ from twilio.twiml.messaging_response import MessagingResponse
 from weather import Weather, Unit
 from googletrans import Translator
 
-# Custom module
+# Custom dictionary module
 import dictionary
 
 app = Flask(__name__)
@@ -96,7 +96,11 @@ def construct_forecasts_from_weather_array(forecasts_array, location):
 def google_translate(message): 
     translator = Translator()
     answer = translator.translate(str(message))
-    return answer.text
+    
+    if answer.text: 
+        return f"Translation: {answer.text}"
+    else:
+        return f"Translation not found for {message}"
 
 if __name__ == '__main__':
     app.run()
