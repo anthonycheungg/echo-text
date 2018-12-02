@@ -64,8 +64,8 @@ def formulate_reply(message):
         query = remove_from(message, "define:")
         answer = dictionary.run(query)
 
-    elif "news:" in message:
-        query = remove_from(message, "news:")
+    elif "news" in message:
+        query = remove_from(message, "news")
         answer = news.run()
 
     else:
@@ -76,6 +76,8 @@ def formulate_reply(message):
         wiki: <article name>
         weather: <city>
         define: <word to define>
+        news
+        translate: <translate to english>
         """
     if answer:
         if len(answer) > 1500:
