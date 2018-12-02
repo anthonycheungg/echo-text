@@ -67,6 +67,16 @@ def formulate_reply(message):
     elif "news" in message:
         query = remove_from(message, "news")
         answer = news.run()
+    
+    elif message == 'helpme':
+        answer = """ 
+        You can use these commands:
+        wiki: <article name>
+        weather: <city>
+        define: <word to define>
+        news
+        translate: <translate to english>
+        """
 
     else:
         answer = """
