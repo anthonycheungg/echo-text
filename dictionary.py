@@ -13,7 +13,6 @@ class API():
         return request
 
     def parse_request(self, request, word):
-
         try:
             return request.json()[0]["shortdef"]
         except:
@@ -28,8 +27,8 @@ class MerriamWebster(API):
         Pass 'word' as the word you want to find.
         """
         return self.parse_request(self.request(
-            f"https://www.dictionaryapi.com/api/v3/"
-            "references/collegiate/json/{word}?key={self.apikey}"), word)
+            "https://www.dictionaryapi.com/api/v3/"
+            f"references/collegiate/json/{word}?key={self.apikey}"), word)
 
 
 def run(word):
