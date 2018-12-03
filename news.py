@@ -1,3 +1,5 @@
+import os
+
 import requests as r
 
 class API():
@@ -14,7 +16,7 @@ class API():
 
 
 class NewsAPI(API):
-    apikey = "e8f9338f21294de983fe006aaa4e4742"
+    apikey = os.environ.get("NEWS_API_TOKEN")
 
     def __call__(self, country="us"):
         return self.parse_request(self.request(f"https://newsapi.org/v2/top-headlines?country={country}&apiKey={self.apikey}"), country)
