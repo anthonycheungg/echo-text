@@ -2,6 +2,7 @@ import os
 
 import requests as r
 
+
 class API():
     def __init__(self):
         pass
@@ -12,26 +13,29 @@ class API():
         return request
 
     def parse_request(self, request, word):
-        
+
         try:
             return request.json()[0]["shortdef"]
         except:
             return [f"Sorry, word: '{word}' was not found."]
 
+
 class MerriamWebster(API):
     apikey = os.environ.get("DICTIONARY_API_TOKEN")
-    
+
     def __call__(self, word):
         """
         Pass 'word' as the word you want to find.
         """
-        return self.parse_request(self.request(f"https://www.dictionaryapi.com/api/v3/references/collegiate/json/{word}?key={self.apikey}"), word)
+        return self.parse_request(self.request(
+            f"https://www.dictionaryapi.com/api/v3/"
+            "references/collegiate/json/{word}?key={self.apikey}"), word)
 
 
 def run(word):
-    
+
     dictionary = MerriamWebster()
-    
+
     blacklist = "/\\.{}()[]<>.,?~1234567890*&^%$#@!`~'\"-_=+|:;"
 
     for char in blacklist:
