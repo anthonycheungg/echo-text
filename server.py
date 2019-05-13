@@ -1,13 +1,6 @@
-# Imports
-import json
-
 from flask import Flask, request
-from googletrans import Translator
 from twilio.twiml.messaging_response import MessagingResponse
-from weather import Unit, Weather
 
-import dictionary
-import news
 from bot.integrations import get_all_supported_integrations
 
 
@@ -51,27 +44,7 @@ def formulate_reply(message):
             except NotImplementedError:
                 answer = f'{integration.USER_COMMAND_PREFIX} is not supported.'
 
-    if "weather:" in message:
-        city = remove_from(message, "weather:")
-        weather = Weather(unit=Unit.CELSIUS)
-        location = weather.lookup_by_location(city)
-
-        if location:
-            forecasts_array = location.forecast
-            answer = construct_forecasts_from_weather_array(forecasts_array,
-                                                            city)
-        else:
-            answer = f"No weather for {city}."
-
-    elif "translate:" in message:
-        message = remove_from(message, "translate:")
-        answer = google_translate(message)
-
-    elif "news" in message:
-        query = remove_from(message, "news")
-        answer = news.run()
-
-    elif message == 'helpme':
+    if message == 'helpme':
         answer = """
         You can use these commands:
         wiki: <article name>
@@ -92,6 +65,7 @@ def formulate_reply(message):
         news
         translate: <translate to english>
         """
+
     if answer:
         if len(answer) > 1500:
             answer = answer[0:1500] + "..."
@@ -101,38 +75,6 @@ def formulate_reply(message):
 def remove_from(message, keyword):
     message = message.replace(keyword, '').strip()
     return message
-
-
-def construct_forecasts_from_weather_array(forecasts_array, location):
-    weather_result = f"Weather for {location} \n"
-    for i in forecasts_array:
-        if i is not None:
-            weather_result += f"Condition: {i.text} \n"
-            weather_result += f"Date: {i.date} \n"
-            weather_result += f"High: {i.high} C \n"
-            weather_result += f"Low: {i.low} C  \n"
-            weather_result += '\n'
-    return weather_result
-
-
-def google_translate(message):
-    translator = Translator()
-    answer = translator.translate(str(message))
-
-    if answer.text:
-        return f"Translation: {answer.text}"
-    else:
-        return f"Translation not found for {message}"
-
-
-def log_message(number, message):
-    with open('responses.json', 'a') as file:
-        log = {
-            'phone_number': number,
-            'message': message
-        }
-        file.write(json.dumps(log))
-        file.close()
 
 
 if __name__ == '__main__':
