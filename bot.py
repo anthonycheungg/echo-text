@@ -1,7 +1,7 @@
 # Imports
 from flask import Flask, request
 from twilio.twiml.messaging_response import MessagingResponse
-from weather import Weather, Unit
+#from weather import Weather, Unit
 from googletrans import Translator
 import json
 
@@ -41,7 +41,7 @@ def formulate_reply(message):
     message = message.lower().strip()  
     answer = "" 
    
-    if "weather:" in message:     
+    #if "weather:" in message:     
         city = remove_from(message, "weather:")
         weather = Weather(unit=Unit.CELSIUS)
         location = weather.lookup_by_location(city)
@@ -107,7 +107,7 @@ def wikipedia_request(message):
         answer = f"{message} could not be found on Wikipedia."
     return answer
 
-def construct_forecasts_from_weather_array(forecasts_array, location):
+#def construct_forecasts_from_weather_array(forecasts_array, location):
     weather_result = f"Weather for {location} \n"
     for i in forecasts_array:
         if i is not None:

@@ -2,5 +2,4 @@ flask
 twilio
 wikipedia
 gunicorn
-weather-api
 git+https://github.com/BoseCorp/py-googletrans
