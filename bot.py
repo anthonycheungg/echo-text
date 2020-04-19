@@ -1,5 +1,5 @@
 # Imports
-from flask import Flask, request
+from flask import Flask, request, redirect
 from twilio.twiml.messaging_response import MessagingResponse
 #from weather import Weather, Unit
 from googletrans import Translator
@@ -15,7 +15,7 @@ app = Flask(__name__)
 def index():
     return '<h1> Echo Text </h1> <p> This is the web server for Echo Text. You can text it at 604 259 1114 </p>'
 
-@app.route('/sms', methods=['POST'])
+@app.route('/sms', methods=['GET','POST'])
 def sms():
     """
     Use Twilio API to reply to texts
@@ -26,7 +26,7 @@ def sms():
 
     print("Message obtained by {}:".format(number))
     print("{}".format(message))
-    log_message(number, message)
+    log_message(number, message)    
     
     reply = formulate_reply(message)    
     print("Reply: {}".format(reply))
